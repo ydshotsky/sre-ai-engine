@@ -21,11 +21,15 @@ logger = logging.getLogger("SRE-AI-Engine")
 # Grab Environment Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-cache = redis.Redis(
-    host=os.getenv("REDIS_HOST", "localhost"),
-    port=int(os.getenv("REDIS_PORT", 6379)),
-    decode_responses=True
-)
+redis_url = os.getenv("REDIS_URL")
+if redis_url:
+    cache = redis.from_url(redis_url, decode_responses=True)
+else:
+    cache = redis.Redis(
+        host=os.getenv("REDIS_HOST", "localhost"),
+        port=int(os.getenv("REDIS_PORT", 6379)),
+        decode_responses=True
+    )
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO")

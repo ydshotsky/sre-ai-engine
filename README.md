@@ -21,8 +21,9 @@ You must define the following environment variables before running the applicati
 | Variable | Description |
 |---|---|
 | `OPENAI_API_KEY` | Your OpenAI API Key for generating AI diagnostics. |
-| `REDIS_HOST` | Redis cache hostname (Defaults to `localhost`). |
-| `REDIS_PORT` | Redis cache port (Defaults to `6379`). |
+| `REDIS_URL` | Redis connection URL (e.g., `rediss://user:password@host:port`). Useful for managed services like Aiven. Overrides HOST/PORT if provided. |
+| `REDIS_HOST` | Redis cache hostname (Defaults to `localhost`). Used if `REDIS_URL` is not set. |
+| `REDIS_PORT` | Redis cache port (Defaults to `6379`). Used if `REDIS_URL` is not set. |
 | `GITHUB_TOKEN` | Your GitHub Personal Access Token (PAT). |
 | `GITHUB_REPO` | GitHub repository to post issues to (Format: `owner/repo`). |
 | `GRAFANA_WEBHOOK_SECRET`| Secret expected in the `x-grafana-alert-id` header for authentication. |
