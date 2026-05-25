@@ -4,6 +4,7 @@ import secrets
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Header, status
 from pydantic import BaseModel, Field
 from openai import OpenAI
+import google.generativeai as genai
 import hashlib
 import re
 import requests
@@ -19,8 +20,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("SRE-AI-Engine")
 
 # Grab Environment Configuration
-AI_API_KEY = os.getenv("OPENAI_API_KEY")
-AI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME")
+AI_API_KEY = os.getenv("GEMINI_API_KEY", os.getenv("OPENAI_API_KEY"))
+AI_MODEL_NAME = os.getenv("GEMINI_MODEL_NAME", "gemma-4-26b")
 
 redis_url = os.getenv("REDIS_URL")
 if redis_url:
@@ -119,13 +120,14 @@ def execute_intelligent_triage(alert: GrafanaAlertPayload):
     user_prompt = f"Title: {alert.title}\nMessage: {alert.message}\nLogs:\n{alert.logs}"
     
     try:
-        ai_client = OpenAI(api_key=AI_API_KEY)
-        completion = ai_client.chat.completions.create(
-            model=AI_MODEL_NAME,
-            messages=[{"role": "system", "content": system_instruction}, {"role": "user", "content": user_prompt}],
-            temperature=0.1
+        genai.configure(api_key=AI_API_KEY)
+        model = genai.GenerativeModel(AI_MODEL_NAME if AI_MODEL_NAME else 'gemma-4-26b')
+        prompt = f"{system_instruction}\n\n{user_prompt}"
+        response = model.generate_content(
+            prompt,
+            generation_config=genai.types.GenerationConfig(temperature=0.1)
         )
-        ai_diagnostic_markdown = completion.choices[0].message.content
+        ai_diagnostic_markdown = response.text
         
         # Build payload and ship to GitHub Issues API
         url = f"https://api.github.com/repos/{GITHUB_REPO}/issues"

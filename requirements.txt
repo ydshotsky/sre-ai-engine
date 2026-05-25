@@ -5,6 +5,6 @@
 azure-functions
 fastapi
 pydantic
-openai
+google-generativeai
 requests
 redis
