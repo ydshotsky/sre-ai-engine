@@ -3,3 +3,8 @@
 # azure-monitor-opentelemetry 
 
 azure-functions
+fastapi
+pydantic
+openai
+requests
+redis
