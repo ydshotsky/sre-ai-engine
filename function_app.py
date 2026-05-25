@@ -19,7 +19,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("SRE-AI-Engine")
 
 # Grab Environment Configuration
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+AI_API_KEY = os.getenv("OPENAI_API_KEY")
+AI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME")
 
 redis_url = os.getenv("REDIS_URL")
 if redis_url:
@@ -118,9 +119,9 @@ def execute_intelligent_triage(alert: GrafanaAlertPayload):
     user_prompt = f"Title: {alert.title}\nMessage: {alert.message}\nLogs:\n{alert.logs}"
     
     try:
-        ai_client = OpenAI(api_key=OPENAI_API_KEY)
+        ai_client = OpenAI(api_key=AI_API_KEY)
         completion = ai_client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=AI_MODEL_NAME,
             messages=[{"role": "system", "content": system_instruction}, {"role": "user", "content": user_prompt}],
             temperature=0.1
         )
@@ -170,7 +171,7 @@ async def receive_incident_alert(payload: GrafanaAlertPayload,
         )
         
     # Defensive structural assertions
-    if not OPENAI_API_KEY or not GITHUB_TOKEN or not GITHUB_REPO:
+    if not AI_API_KEY or not GITHUB_TOKEN or not GITHUB_REPO:
         logger.critical("System misconfiguration: Environment secret parameters are missing.")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
